@@ -1,0 +1,24 @@
+version: '3'
+services:
+  client:
+    build:
+      context: .
+      dockerfile: ${CLIENT_DF}
+    image: client
+    links:
+      - server
+    environment:
+      - URI=https://server:5001
+      - CLIENT_ARGS=${CLIENT_ARGS}
+      - CLIENT_ITERS=${CLIENT_ITERS}
+      - NET_EVENT_LISTENER=${NET_EVENT_LISTENER}
+
+  server:
+    build:
+      context: .
+      dockerfile: server.Dockerfile
+    image: ubu22server
+    ports:
+      - "5001:5001"
+    environment:
+      - URLS=https://0.0.0.0:5001

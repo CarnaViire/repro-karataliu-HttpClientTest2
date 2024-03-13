@@ -1,34 +1,21 @@
-This repo is setup to compare HttpClient performance between net8 and net7.
+Script to run repro (client and server) in docker.
 
-Steps:
-1. Setup server:
+Example:
+```sh
+.\run-docker-compose.ps1 -Distro debian-12 -Handler "SocketsHttpHandler IgnoreCertName"
 ```
-# can run on host
-cd Server
-dotnet run
-```
+Parameters:
 
-2. Setup tcpdump:
-```
-sudo tcpdump 'port 5001' -n -vv -i any -w capture.pcap
-```
+- `-Distro` (required)
+    - `debian-11` -- debian-11.Dockerfile
+    - `debian-12` -- debian-12.Dockerfile
 
-3. Run from net7:
-```
-docker run -ti mcr.microsoft.com/dotnet/sdk:7.0 bash
-git clone https://github.com/karataliu/HttpClientTest2
-cd HttpClientTest2/Client
-export URI=https://<server_ip>:5001 # set server_ip to the host ip where container can reacch
-dotnet run --project net7.csproj
-```
+- `-Handler` (required)
+    - `HttpClientHandler`
+    - `SocketsHttpHandler`
+    - `"SocketsHttpHandler IgnoreCertName"`
+        - sets `CertificateChainPolicy.VerificationFlags` to `IgnoreInvalidName`
 
-4. Run from net8:
-```
-docker run -ti mcr.microsoft.com/dotnet/sdk:8.0 bash
-git clone https://github.com/karataliu/HttpClientTest2
-cd HttpClientTest2/Client
-export URI=https://<server_ip>:5001 # set server_ip to the host ip where container can reacch
-dotnet run --project net8.csproj
-```
+- `-Iters` (optional, default = 10) -- number of runs to get avg result
 
-5. Compare the result.
+- `-Trace` (optional) -- collects traces from networking event sources; incompatible with `-Iters`
