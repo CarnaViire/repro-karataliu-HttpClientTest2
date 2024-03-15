@@ -13,6 +13,9 @@ RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 8
 
 RUN git clone https://github.com/karataliu/HttpClientTest2 && \
     cd HttpClientTest2/Server && \
-    /usr/share/dotnet/dotnet publish -c release -r linux-x64 -p:PublishSingleFile=true --self-contained ./Server.csproj
+    /usr/share/dotnet/dotnet publish -c release -r linux-x64 -p:PublishSingleFile=true --self-contained ./Server.csproj && \
+    cp -r bin/release/net8.0/linux-x64/publish/ /Server/
 
-CMD /usr/share/dotnet/dotnet run -c release --project /HttpClientTest2/Server/Server.csproj
+WORKDIR /Server
+
+CMD ./Server

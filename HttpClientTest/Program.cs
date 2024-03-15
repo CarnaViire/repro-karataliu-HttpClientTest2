@@ -1,8 +1,20 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using TestUtilities;
+
+if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+{
+    // 3.0+ are M_NN_00_PP_p (Major, Minor, 0, Patch, Preview)
+    // 1.x.y are 1_XX_YY_PP_p
+    long version = SafeEvpPKeyHandle.OpenSslVersion;
+    long major = (version >> 28) & 0xff;
+    long minor = (version >> 20) & 0xff;
+    Console.WriteLine($"OpenSSL {major}.{minor}");
+}
 
 bool enableEventListener = Environment.GetEnvironmentVariable("NET_EVENT_LISTENER") == "1";
 var logs = new ConcurrentQueue<string>();
@@ -45,13 +57,6 @@ else
 }
 
 var uri = Environment.GetEnvironmentVariable("URI");
-if (string.IsNullOrEmpty(uri)) uri = "https://localhost:5001";
-new HttpRequestMessage
-{
-    RequestUri = new Uri(uri),
-    VersionPolicy = HttpVersionPolicy.RequestVersionExact,
-    Version = HttpVersion.Version20,
-};
 
 var watch = Stopwatch.StartNew();
 await hc.GetAsync(uri);

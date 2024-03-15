@@ -3,8 +3,8 @@ services:
   client:
     build:
       context: .
-      dockerfile: ${CLIENT_DF}
-    image: client
+      dockerfile: ${CLIENT_DF}.Dockerfile
+    image: client-${CLIENT_DF}
     links:
       - server
     environment:
@@ -12,12 +12,13 @@ services:
       - CLIENT_ARGS=${CLIENT_ARGS}
       - CLIENT_ITERS=${CLIENT_ITERS}
       - NET_EVENT_LISTENER=${NET_EVENT_LISTENER}
+      - CLR_OPENSSL_VERSION_OVERRIDE=${FORCE_OPENSSL_VERSION}
 
   server:
     build:
       context: .
       dockerfile: server.Dockerfile
-    image: ubu22server
+    image: server-ubuntu-22
     ports:
       - "5001:5001"
     environment:

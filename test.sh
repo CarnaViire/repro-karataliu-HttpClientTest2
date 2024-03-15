@@ -1,6 +1,22 @@
 #!/bin/bash
 
-cat /etc/os-release
+echo "--Distro--"
+cat /etc/os-release | grep "PRETTY_NAME"
+echo
+
+echo "--OpenSSL--"
+path=$(ldconfig -p | grep libssl.so.1.1)
+if [ "$path" ]; then
+  dpkg -s libssl1.1 | grep '^Version:'
+  echo $path
+fi
+
+path=$(ldconfig -p | grep libssl.so.3)
+if [ "$path" ]; then
+  dpkg -s libssl3 | grep '^Version:'
+  echo $path
+fi
+echo
 
 #wait for the server to start
 iter=0
@@ -21,8 +37,6 @@ for i in $(seq 1 $maxiter); do
   fi
 done
 
-cd /HttpClientTest2/HttpClientTest/bin/release/
-
 net7total=0
 net7max=0
 net8total=0
@@ -36,16 +50,16 @@ for i in $(seq 1 $n); do
   echo "--iter $i--"
 
   echo "net7.0 ($CLIENT_ARGS)"
-  ./net7.0/linux-x64/publish/net7 $CLIENT_ARGS > net7.log
+  /net7/net7 $CLIENT_ARGS > net7.log
   cat net7.log
-  ms="$(head -n 1 net7.log | cut -d ' ' -f 3)" # "Elapsed ms: 131"
+  ms="$(cat net7.log | grep "Elapsed ms: " | cut -d ' ' -f 3)"
   net7total=$(($net7total + 10#$ms))
   net7max=$((10#$ms > $net7max ? 10#$ms : $net7max))
 
   echo "net8.0 ($CLIENT_ARGS)"
-  ./net8.0/linux-x64/publish/net8 $CLIENT_ARGS > net8.log
+  /net8/net8 $CLIENT_ARGS > net8.log
   cat net8.log
-  ms="$(head -n 1 net8.log | cut -d ' ' -f 3)"
+  ms="$(cat net8.log | grep "Elapsed ms: "  | cut -d ' ' -f 3)"
   net8total=$(($net8total + 10#$ms))
   net8max=$((10#$ms > $net8max ? 10#$ms : $net8max))
   echo

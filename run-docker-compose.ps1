@@ -9,10 +9,13 @@ param (
     [int32]$Iters = -1,
 
     [Parameter()]
-    [switch]$Trace
+    [switch]$Trace,
+
+    [Parameter()]
+    [switch]$ForceOpenSSL11
 )
 
-$env:CLIENT_DF = "$Distro.Dockerfile"
+$env:CLIENT_DF = "$Distro"
 $env:CLIENT_ARGS = "$Handler"
 
 if ($Iters -ne -1) {
@@ -32,4 +35,10 @@ if ($Iters -ne -1) {
     }
 }
 
-docker-compose --file .\docker-compose.yml up --abort-on-container-exit --build
+if ($ForceOpenSSL11) {
+    $env:FORCE_OPENSSL_VERSION = "1.1"
+} else {
+    $env:FORCE_OPENSSL_VERSION = ""
+}
+
+docker-compose --file .\docker-compose.yml up --abort-on-container-exit --build --force-recreate

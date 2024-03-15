@@ -9,27 +9,22 @@ RUN apt-get update && \
         software-properties-common \
         vim
 
+RUN curl -LO http://ftp.us.debian.org/debian/pool/main/o/openssl/libssl1.1_1.1.1w-0+deb11u1_amd64.deb && \
+    apt-get install ./libssl1.1_1.1.1w-0+deb11u1_amd64.deb
+
 RUN curl -sSL https://dot.net/v1/dotnet-install.sh > dotnet-install.sh && \
     chmod +x dotnet-install.sh && \
     ./dotnet-install.sh --channel 7.0.1xx --install-dir /usr/share/dotnet && \
     ./dotnet-install.sh --channel 8.0.1xx --install-dir /usr/share/dotnet
 
-#RUN git clone https://github.com/karataliu/HttpClientTest2 && \
-#    cd HttpClientTest2/HttpClientTest && \
-#    export DOTNET_ROOT=/usr/share/dotnet && \
-#    export PATH=$PATH:/usr/share/dotnet:/usr/share/dotnet/tools && \
-#    dotnet publish -c release -r linux-x64 -p:PublishSingleFile=true --self-contained ./net7.csproj && \
-#    dotnet publish -c release -r linux-x64 -p:PublishSingleFile=true --self-contained ./net8.csproj
+COPY --chmod=777 ./test.sh .
+COPY ./HttpClientTest/*.csproj ./src/
+COPY ./HttpClientTest/*.cs ./src/
 
-COPY . ./HttpClientTest2
-
-RUN cd HttpClientTest2/HttpClientTest && \
-    export DOTNET_ROOT=/usr/share/dotnet && \
-    export PATH=$PATH:/usr/share/dotnet:/usr/share/dotnet/tools && \
-    dotnet publish -c release -r linux-x64 -p:PublishSingleFile=true --self-contained ./net7.csproj && \
-    dotnet publish -c release -r linux-x64 -p:PublishSingleFile=true --self-contained ./net8.csproj
-
-COPY ./test.sh .
-RUN chmod +x ./test.sh
+RUN cd src && \
+    /usr/share/dotnet/dotnet publish -c release -r linux-x64 -p:PublishSingleFile=true --self-contained ./net7.csproj && \
+    /usr/share/dotnet/dotnet publish -c release -r linux-x64 -p:PublishSingleFile=true --self-contained ./net8.csproj && \
+    cp -r bin/release/net7.0/linux-x64/publish/ /net7/ && \
+    cp -r bin/release/net8.0/linux-x64/publish/ /net8/
 
 CMD ./test.sh

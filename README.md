@@ -19,3 +19,5 @@ Parameters:
 - `-Iters` (optional, default = 10) -- number of runs to get avg result
 
 - `-Trace` (optional) -- collects traces from networking event sources; incompatible with `-Iters`
+
+- `-ForceOpenSSL11` (optional) -- forces .NET to use "1.1" (sets `CLR_OPENSSL_VERSION_OVERRIDE`)
